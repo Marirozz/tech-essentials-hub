@@ -1,0 +1,1 @@
+export default function Affiliate(){return <main className="section"><div className="container article"><h1>Aviso de afiliados</h1><p>Tech Essentials Hub puede recibir una comisión por compras realizadas mediante algunos enlaces, sin costo adicional para el usuario. Las comisiones no determinan las recomendaciones editoriales.</p></div></main>}

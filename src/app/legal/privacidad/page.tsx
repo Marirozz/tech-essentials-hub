@@ -1,0 +1,1 @@
+export default function Privacy(){return <main className="section"><div className="container article"><h1>Política de privacidad</h1><p>Esta página deberá adaptarse a las herramientas reales de analítica, formularios, cookies y proveedores utilizados antes del lanzamiento.</p></div></main>}

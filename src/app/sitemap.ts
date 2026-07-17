@@ -1,0 +1,1 @@
+import type { MetadataRoute } from "next";import { products,guides } from "@/data/content";export default function sitemap():MetadataRoute.Sitemap{const base="https://techessentialshub.com";return [{url:base},{url:`${base}/productos`},{url:`${base}/guias`},...products.map(p=>({url:`${base}/productos/${p.slug}`})),...guides.map(g=>({url:`${base}/guias/${g.slug}`}))]}

@@ -1,0 +1,7 @@
+import Link from "next/link";
+import { requireAdmin } from "@/lib/admin-auth";
+import { getAdminProducts } from "@/lib/products";
+import { logoutAction, deleteProductAction } from "./actions";
+
+export const dynamic="force-dynamic";
+export default async function Admin(){await requireAdmin();const products=await getAdminProducts();return <main className="admin-shell"><aside className="admin-nav"><h2>Admin</h2><Link href="/admin">Productos</Link><Link href="/">Ver sitio</Link><form action={logoutAction}><button className="btn btn-secondary" type="submit">Cerrar sesión</button></form></aside><section className="admin-content"><div className="section-head"><div><span className="eyebrow">Panel administrativo</span><h1>Productos</h1><p className="muted">Agrega y edita productos sin tocar el código.</p></div><Link className="btn btn-primary" href="/admin/productos/nuevo">Nuevo producto</Link></div><div className="admin-table-wrap"><table className="table"><thead><tr><th>Producto</th><th>Categoría</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>{products.map((p)=><tr key={p.id??p.slug}><td><strong>{p.name}</strong><small className="muted" style={{display:"block"}}>{p.brand}</small></td><td>{p.category}</td><td>{p.status}</td><td><div className="admin-actions">{p.id&&<Link href={`/admin/productos/${p.id}`}>Editar</Link>}{p.id&&<form action={deleteProductAction.bind(null,p.id)}><button type="submit" className="admin-link-danger">Eliminar</button></form>}</div></td></tr>)}</tbody></table></div></section></main>}

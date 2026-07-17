@@ -1,0 +1,2 @@
+import Image from "next/image";import Link from "next/link";
+export function GuideCard({guide}:{guide:{slug:string;title:string;category:string;excerpt:string;image:string;minutes:number}}){return <article className="card"><Image className="guide-image" src={guide.image} alt={guide.title} width={700} height={440}/><div className="card-body"><span className="badge">{guide.category}</span><h3>{guide.title}</h3><p className="muted">{guide.excerpt}</p><Link href={`/guias/${guide.slug}`}>Leer guía · {guide.minutes} min →</Link></div></article>}
