@@ -1,22 +1,35 @@
 # Tech Essentials Hub
 
-## Inicio local
+## Novedad de esta versión
+
+El panel administrativo ahora incluye:
+
+- Productos: biblioteca central reutilizable.
+- Guías: contenido editorial vinculado a productos existentes.
+- Selección de productos por guía.
+- Orden, distinción y nota específica para cada producto dentro de una guía.
+
+## Actualizar una instalación existente
+
+1. Copia los archivos de esta versión sobre el proyecto.
+2. Conserva tu `.env.local`.
+3. En Supabase SQL Editor ejecuta `supabase/guides-migration.sql`.
+4. Ejecuta:
 
 ```bash
 npm install
-npm run dev
+npm run build
 ```
 
-## Activar el panel dinámico de productos
+5. Sube los cambios a GitHub.
+6. Vercel desplegará la nueva versión.
 
-1. Crea un proyecto gratuito en Supabase.
-2. Abre **SQL Editor**, pega `supabase/schema.sql` y ejecuta el script.
-3. En Supabase ve a **Project Settings → API** y copia la URL, la clave anon y la clave service_role.
-4. Crea `.env.local` en la raíz usando `.env.example`.
-5. Define una contraseña propia en `ADMIN_PASSWORD`.
-6. Reinicia `npm run dev`.
-7. Abre `http://localhost:3000/admin`.
+## Flujo de contenido
 
-Desde el panel puedes crear, editar y eliminar productos. Los productos publicados aparecen automáticamente en la web. Mientras Supabase no esté configurado, el sitio usa los productos de ejemplo de `src/data/content.ts`.
+1. Crea productos en `/admin`.
+2. Ve a `/admin/guias`.
+3. Crea una guía.
+4. Selecciona los productos que aparecerán.
+5. Publica la guía.
 
-> Nunca publiques ni compartas `SUPABASE_SERVICE_ROLE_KEY`.
+Un producto puede utilizarse en varias guías y se actualiza desde un único lugar.

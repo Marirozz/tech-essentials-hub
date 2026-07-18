@@ -2,13 +2,13 @@ import Link from "next/link";
 import { FeaturedProductsCarousel } from "@/components/FeaturedProductsCarousel";
 import { GuideCard } from "@/components/GuideCard";
 import { SearchForm } from "@/components/SearchForm";
-import { guides } from "@/data/content";
+import { getGuides } from "@/lib/guides";
 import { getProducts } from "@/lib/products";
 
 const categories = ["Home Office", "Home Essentials", "Smart Home", "Audio", "Setups"];
 
 export default async function Home() {
-  const products = await getProducts();
+  const [products, guides] = await Promise.all([getProducts(), getGuides()]);
   return (
     <main>
       <section className="hero"><div className="container"><span className="eyebrow">Tech Essentials Hub</span><h1 className="title">Tecnología que mejora<br />tu trabajo y tu hogar.</h1><p className="subtitle">Guías claras, análisis honestos y productos seleccionados para trabajar mejor y simplificar las tareas del día a día.</p><SearchForm className="hero-search" /><div className="chips">{categories.map((category)=><Link key={category} className="chip" href={`/categorias/${category.toLowerCase().replaceAll(" ", "-")}`}>{category}</Link>)}</div></div></section>
