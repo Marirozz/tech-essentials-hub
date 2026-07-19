@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { getAdminProducts } from "@/lib/products";
 import { logoutAction, deleteProductAction } from "./actions";
 
+
 export const dynamic = "force-dynamic";
 
 export default async function Admin() {
