@@ -61,7 +61,13 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                       <span className="score">{product.score.toFixed(1)}</span>
                     </div>
                     {note && <p className="guide-note">{note}</p>}
-                    <p>{product.description}</p>
+                    <div className="product-description">
+                       {product.description
+                         .split(/\r?\n\s*\r?\n/)
+                         .map((paragraph, index) => (
+                           <p key={index}>{paragraph}</p>
+                          ))}
+                      </div>
                     <div className="grid guide-pros-cons">
                       <div className="procon"><h3>Ventajas</h3><ul>{product.pros.map((item) => <li key={item}>{item}</li>)}</ul></div>
                       <div className="procon"><h3>Desventajas</h3><ul>{product.cons.map((item) => <li key={item}>{item}</li>)}</ul></div>

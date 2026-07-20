@@ -94,7 +94,7 @@ export function ImageUploader({
               width: "100%",
               maxWidth: 420,
               aspectRatio: "4 / 3",
-              objectFit: "cover",
+              objectFit: "contain",
               borderRadius: 16,
             }}
           />
