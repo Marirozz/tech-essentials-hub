@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createAdminSession, clearAdminSession, requireAdmin } from "@/lib/admin-auth";
+import {
+  createAdminSession,
+  clearAdminSession,
+  requireAdmin,
+} from "@/lib/admin-auth";
 import { adminClient } from "@/lib/products";
 
 function slugify(value: string) {
@@ -16,7 +20,10 @@ function slugify(value: string) {
 }
 
 function lines(value: FormDataEntryValue | null) {
-  return String(value ?? "").split("\n").map((item) => item.trim()).filter(Boolean);
+  return String(value ?? "")
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function specs(value: FormDataEntryValue | null) {
@@ -54,14 +61,91 @@ function productPayload(formData: FormData) {
 }
 
 function faq(value: FormDataEntryValue | null) {
-  return lines(value)
-    .map((line) => {
-      const [question, ...answer] = line.split("|");
-      return { question: question.trim(), answer: answer.join("|").trim() };
-    })
-    .filter((item) => item.question && item.answer);
-}
+  const text = String(value ?? "")
+    .replace(/\r\n/g, "\n")
+    .trim();
 
+  if (!text) {
+    return [];
+  }
+
+  // Formato recomendado:
+  // Pregunta | Respuesta
+  if (text.includes("|")) {
+    return text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const separatorIndex = line.indexOf("|");
+
+        if (separatorIndex === -1) {
+          return null;
+        }
+
+        const question = line
+          .slice(0, separatorIndex)
+          .trim();
+
+        const answer = line
+          .slice(separatorIndex + 1)
+          .trim();
+
+        if (!question || !answer) {
+          return null;
+        }
+
+        return {
+          question,
+          answer,
+        };
+      })
+      .filter(
+        (
+          item,
+        ): item is {
+          question: string;
+          answer: string;
+        } => item !== null,
+      );
+  }
+
+  // Formato alternativo:
+  // Pregunta
+  // Respuesta
+  //
+  // Pregunta
+  // Respuesta
+  return text
+    .split(/\n\s*\n/)
+    .map((block) =>
+      block
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean),
+    )
+    .map((block) => {
+      if (block.length < 2) {
+        return null;
+      }
+
+      const question = block[0];
+      const answer = block.slice(1).join(" ");
+
+      return {
+        question,
+        answer,
+      };
+    })
+    .filter(
+      (
+        item,
+      ): item is {
+        question: string;
+        answer: string;
+      } => item !== null,
+    );
+}
 function guidePayload(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   return {
@@ -80,7 +164,8 @@ function guidePayload(formData: FormData) {
       String(formData.get("affiliateNotice") ?? "").trim() ||
       "Este artículo puede contener enlaces de afiliado. Tech Essentials Hub podría recibir una comisión si realizas una compra mediante alguno de ellos, sin costo adicional para ti.",
     meta_title: String(formData.get("metaTitle") ?? "").trim() || null,
-    meta_description: String(formData.get("metaDescription") ?? "").trim() || null,
+    meta_description:
+      String(formData.get("metaDescription") ?? "").trim() || null,
     status: String(formData.get("status") ?? "draft"),
     featured: formData.get("featured") === "on",
     updated_at: new Date().toISOString(),
@@ -102,12 +187,18 @@ function guideRelations(guideId: string, formData: FormData) {
 
 async function replaceGuideRelations(guideId: string, formData: FormData) {
   const client = adminClient();
-  if (!client) throw new Error("Configura Supabase en las variables de entorno");
-  const { error: deleteError } = await client.from("guide_products").delete().eq("guide_id", guideId);
+  if (!client)
+    throw new Error("Configura Supabase en las variables de entorno");
+  const { error: deleteError } = await client
+    .from("guide_products")
+    .delete()
+    .eq("guide_id", guideId);
   if (deleteError) throw new Error(deleteError.message);
   const relations = guideRelations(guideId, formData);
   if (relations.length > 0) {
-    const { error: insertError } = await client.from("guide_products").insert(relations);
+    const { error: insertError } = await client
+      .from("guide_products")
+      .insert(relations);
     if (insertError) throw new Error(insertError.message);
   }
 }
@@ -133,8 +224,11 @@ export async function logoutAction() {
 export async function createProductAction(formData: FormData) {
   await requireAdmin();
   const client = adminClient();
-  if (!client) throw new Error("Configura Supabase en las variables de entorno");
-  const { error } = await client.from("products").insert(productPayload(formData));
+  if (!client)
+    throw new Error("Configura Supabase en las variables de entorno");
+  const { error } = await client
+    .from("products")
+    .insert(productPayload(formData));
   if (error) throw new Error(error.message);
   revalidatePublicContent();
   redirect("/admin");
@@ -143,8 +237,12 @@ export async function createProductAction(formData: FormData) {
 export async function updateProductAction(id: string, formData: FormData) {
   await requireAdmin();
   const client = adminClient();
-  if (!client) throw new Error("Configura Supabase en las variables de entorno");
-  const { error } = await client.from("products").update(productPayload(formData)).eq("id", id);
+  if (!client)
+    throw new Error("Configura Supabase en las variables de entorno");
+  const { error } = await client
+    .from("products")
+    .update(productPayload(formData))
+    .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePublicContent();
   revalidatePath(`/productos/${String(formData.get("slug") ?? "")}`);
@@ -154,7 +252,8 @@ export async function updateProductAction(id: string, formData: FormData) {
 export async function deleteProductAction(id: string) {
   await requireAdmin();
   const client = adminClient();
-  if (!client) throw new Error("Configura Supabase en las variables de entorno");
+  if (!client)
+    throw new Error("Configura Supabase en las variables de entorno");
   const { error } = await client.from("products").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePublicContent();
@@ -164,8 +263,13 @@ export async function deleteProductAction(id: string) {
 export async function createGuideAction(formData: FormData) {
   await requireAdmin();
   const client = adminClient();
-  if (!client) throw new Error("Configura Supabase en las variables de entorno");
-  const { data, error } = await client.from("guides").insert(guidePayload(formData)).select("id").single();
+  if (!client)
+    throw new Error("Configura Supabase en las variables de entorno");
+  const { data, error } = await client
+    .from("guides")
+    .insert(guidePayload(formData))
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   await replaceGuideRelations(data.id as string, formData);
   revalidatePublicContent();
@@ -175,8 +279,12 @@ export async function createGuideAction(formData: FormData) {
 export async function updateGuideAction(id: string, formData: FormData) {
   await requireAdmin();
   const client = adminClient();
-  if (!client) throw new Error("Configura Supabase en las variables de entorno");
-  const { error } = await client.from("guides").update(guidePayload(formData)).eq("id", id);
+  if (!client)
+    throw new Error("Configura Supabase en las variables de entorno");
+  const { error } = await client
+    .from("guides")
+    .update(guidePayload(formData))
+    .eq("id", id);
   if (error) throw new Error(error.message);
   await replaceGuideRelations(id, formData);
   revalidatePublicContent();
@@ -187,7 +295,8 @@ export async function updateGuideAction(id: string, formData: FormData) {
 export async function deleteGuideAction(id: string) {
   await requireAdmin();
   const client = adminClient();
-  if (!client) throw new Error("Configura Supabase en las variables de entorno");
+  if (!client)
+    throw new Error("Configura Supabase en las variables de entorno");
   const { error } = await client.from("guides").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePublicContent();
