@@ -14,8 +14,8 @@ export function ProductCard({
           className="product-card-image"
           src={product.image}
           alt={product.name}
-          width={700}
-          height={500}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
         />
       </div>
 
